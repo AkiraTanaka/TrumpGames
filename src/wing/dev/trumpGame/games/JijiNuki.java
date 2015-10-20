@@ -1,43 +1,59 @@
-package wing.dev.trumpGame;
+package wing.dev.trumpGame.games;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import wing.dev.common.Field;
 import wing.dev.common.model.Player;
 import wing.dev.common.model.Trump;
 import wing.dev.common.util.LogUtil;
+import wing.dev.trumpGame.BaseTrumpGame;
 
+/**
+ * ジジぬきゲームクラス
+ */
+public class JijiNuki extends BaseTrumpGame {
 
-public class BabaNuki extends Field{
-
-	public static void main(String[] args) {
-		BabaNuki babaNuki = new BabaNuki();
-//		babaNuki.isTestMode = true; // test用
-		babaNuki.runGame();
+	/**
+	 * コンストラクタ
+	 */
+	public JijiNuki() {
+		super("ジジぬき");
+	}
+	public JijiNuki(String gameName) {
+		super(gameName);
 	}
 
-	public void init() {
-		List<String> playerNames = new ArrayList<>();
-		playerNames.add("player1");
-		List<String> CPUNames = new ArrayList<>();
-		CPUNames.add("CPU1");
-		CPUNames.add("CPU2");
-		CPUNames.add("CPU3");
+	/**
+	 * プレイヤーと山札を設定
+	 * @param playerNames プレイヤーたち
+	 * @param CPUNames CPUたち
+	 */
+	protected void settingYamahuda(List<String> playerNames, List<String> CPUNames) {
+		// JOKER2枚入りでその後、1枚トランプを捨てる
+		initField(playerNames, CPUNames, 2);
+		Trump removedTrump = m_yamahuda.remove(0);
+		if (m_testModeFlag == true) {
+			printLog(removedTrump + "を最初に抜きました");
+		}
+	}
 
-		initField(playerNames, CPUNames, 1);
-		drowAllCard();
+	/** ゲームを初期化 */
+	@Override
+	public void init(List<String> playerNames, List<String> CPUNames) {
+		settingYamahuda(playerNames, CPUNames);
+		drawAllTrump();
 		printLog("トランプを配ります");
 		for (Player player : m_players) {
 			player.showTehuda();
 		}
 		printLog("同じ数字のトランプを捨てます");
 		for (Player player : m_players) {
-			player.deleteDuplication();
+			player.removeDuplication();
 		}
 		printLog("ゲームを開始します");
 	}
 
+	/** ゲーム開始時処理 */
+	@Override
 	public void startGame() {
 		int cnt = 1;
 		while (true) {
@@ -48,9 +64,9 @@ public class BabaNuki extends Field{
 				if (player.isWinFlag() == false) {
 					printLog("【" + player.getName() + "のターン】");
 					// 隣の人から手札を引く
-					drowCardByNextPlayer(player);
+					drawTrumpByNextPlayer(player);
 					// 手札から重複するトランプを捨てる
-					player.deleteDuplication();
+					player.removeDuplication();
 					// 手札がなくなった人を判定
 					judgePlayerWin(player);
 					LogUtil.printLog();
@@ -73,7 +89,12 @@ public class BabaNuki extends Field{
 		}
 	}
 
-	public boolean drowCardByNextPlayer(Player player) {
+	/**
+	 * 次のプレイヤーからトランプを取得
+	 * @param player 現在のプレイヤー
+	 * @return トランプを引けたかどうか
+	 */
+	public boolean drawTrumpByNextPlayer(Player player) {
 		Player nextPlayer = getNextPlayer(player);
 		if (nextPlayer == null) {
 			return false;
@@ -83,15 +104,18 @@ public class BabaNuki extends Field{
 		nextPlayer.showTehuda();
 
 		printLog("引きたいトランプの数字を入力してください");
-		int selectIndex = player.selectTrump(nextPlayer.getTehuda());
-		Trump drowedTrump = nextPlayer.removeTehuda(selectIndex - 1);
-//		printLog(drowedTrump + "を引きました");
+		int selectIndex = player.selectTrumpNumber(nextPlayer.getTehuda().size());
+		Trump drawnTrump = nextPlayer.removeTehuda(selectIndex - 1);
+//		printLog(drawnTrump + "を引きました");
 		judgePlayerWin(nextPlayer);
-		player.addTehuda(drowedTrump);
+		player.addTehuda(drawnTrump);
 		player.showTehuda();
 		return true;
 	}
 
+	/**
+	 * 現在の状況を表示
+	 */
 	private void printNow() {
 		printLog("<現在の状況>");
 		StringBuilder sb = new StringBuilder();
@@ -101,6 +125,10 @@ public class BabaNuki extends Field{
 		printLog(sb.toString());
 	}
 
+	/**
+	 * プレイヤー勝利判定
+	 * @param player 判定するプレイヤー
+	 */
 	@Override
 	public void judgePlayerWin(Player player) {
 		if (player.isEmptyTehuda() == true) {
@@ -109,6 +137,7 @@ public class BabaNuki extends Field{
 		}
 	}
 
+	/** ゲーム終了判定 */
 	@Override
 	public boolean judgeGameEnd() {
 		int notWinPlayerCnt = 0;
@@ -123,6 +152,7 @@ public class BabaNuki extends Field{
 		return false;
 	}
 
+	/** ゲーム終了時処理 */
 	@Override
 	public void endGame() {
 		LogUtil.printLog();

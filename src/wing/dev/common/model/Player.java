@@ -9,13 +9,25 @@ import wing.dev.common.util.IOUtil;
 import wing.dev.common.util.LogUtil;
 
 public class Player {
+	/** テストモードフラグ */
 	protected boolean m_testModeFlag = false;
+	/** プレイヤーNo */
 	protected int m_no = -1;
+	/** プレイヤー名 */
 	protected String m_name = "no_name";
+	/** 勝利フラグ */
 	protected boolean m_winFlag = false;
+	/** CPUフラグ */
 	protected boolean m_CPUFlag = false;
+	/** 手札 */
 	protected List<Trump> m_tehuda = null;
 
+	/**
+	 * コンストラクタ
+	 * @param no プレイヤーNo
+	 * @param name プレイヤー名
+	 * @param isTestMode テストモードフラグ
+	 */
 	public Player(int no, String name, boolean isTestMode) {
 		m_no = no;
 		m_CPUFlag = false;
@@ -23,12 +35,23 @@ public class Player {
 		m_tehuda = new ArrayList<>();
 		m_testModeFlag = isTestMode;
 	}
+	/**
+	 * コンストラクタ
+	 * @param no プレイヤーNo
+	 * @param name プレイヤー名
+	 * @param isCPU CPUフラグ
+	 * @param isTestMode テストモードフラグ
+	 */
 	public Player(int no, String name, boolean isCPU, boolean isTestMode) {
 		this(no, name, isTestMode);
 		m_CPUFlag = isCPU;
 	}
 
-	public List<Trump> deleteDuplication() {
+	/**
+	 * 重複する数字を取り除く
+	 * @return 取り除いた数字のリスト
+	 */
+	public List<Trump> removeDuplication() {
 		printLog("重複する数字の手札を捨てます");
 		showTehudaWithSort();
 		boolean isUnique = false;
@@ -58,23 +81,18 @@ public class Player {
 		showTehudaWithSort();
 		return sutehuda;
 	}
-
-	// Trumpを選択
-	public int selectTrump(List<Trump> trumpList) {
-		int inputNumber = -1;
-		int maxNumber = trumpList.size();
-		while(true) {
-			inputNumber = IOUtil.inputNumber();
-			if (inputNumber > 0 && inputNumber <= maxNumber) {
-				break;
-			} else {
-				printLog("入力範囲は" + 1 + "〜" + maxNumber + "です");
-			}
-		}
-		return inputNumber;
+	/**
+	 * トランプの数字を取得
+	 * @param maxNumber 上限値
+	 * @return トランプの選択値
+	 */
+	public int selectTrumpNumber(int maxNumber) {
+		return IOUtil.inputNumberUnderMax(maxNumber);
 	}
 
-	// 手札見える
+	/**
+	 * 手札を表示
+	 */
 	public void showTehuda() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("手札: ");
@@ -195,7 +213,6 @@ public class Player {
 	public Trump removeTehuda(int index) {
 		return m_tehuda.remove(index);
 	}
-
 	/**
 	 * m_isWinを取得します。
 	 * @return m_isWin

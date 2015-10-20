@@ -1,24 +1,27 @@
 package wing.dev.common.model;
 
-import java.util.List;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class CPU extends Player {
+	/**
+	 * コンストラクタ
+	 * @param no プレイヤーNo
+	 * @param name プレイヤー名
+	 * @param isTestMode テストモードフラグ
+	 */
 	public CPU(int no, String name, boolean isTestMode) {
 		super(no, name, true, isTestMode);
 	}
 
-	// CPUなので、自動選択
+	/**
+	 * トランプの数字を取得
+	 * @param maxNumber 上限値
+	 * @return トランプの選択値
+	 */
 	@Override
-	public int selectTrump(List<Trump> trumpList) {
-		int maxNumber = trumpList.size();
-		Random r = new Random();
-		// 1 ~ maxNumberなので
-		int inputNumber = 1;
-		if (maxNumber > 1) {
-			inputNumber = r.nextInt(maxNumber-1) + 1;
-		}
-		return inputNumber;
+	public int selectTrumpNumber(int maxNumber) {
+		// CPUなので、自動選択
+		return ThreadLocalRandom.current().nextInt(1, maxNumber + 1);
 	}
 
 	@Override
